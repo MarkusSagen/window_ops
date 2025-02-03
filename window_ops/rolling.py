@@ -160,6 +160,30 @@ def rolling_min(x: np.ndarray,
                 min_samples: Optional[int] = None) -> np.ndarray:
     return _rolling_comp(_lt, x, window_size, min_samples)
 
+@njit
+@_rolling_docstring
+def rolling_sum(input_array: np.ndarray, window_size: int, min_samples: int | None = None) -> np.ndarray:
+    n_samples = input_array.size
+    window_size, min_samples = _validate_rolling_sizes(window_size, min_samples)
+
+    output_array = np.full_like(input_array, np.nan)
+    start_idx = first_not_na(input_array)
+    if start_idx + min_samples > n_samples:
+        return output_array
+
+    accum = 0.0
+    upper_limit = min(start_idx + window_size, n_samples)
+    for i in range(start_idx, upper_limit):
+        accum += input_array[i]
+        if i + 1 >= start_idx + min_samples:
+            output_array[i] = accum
+
+    for i in range(start_idx + window_size, n_samples):
+        accum += input_array[i] - input_array[i - window_size]
+        output_array[i] = accum
+
+    return output_array
+
 # %% ../nbs/rolling.ipynb 19
 @njit
 def rolling_correlation(x: np.ndarray, window_size: int) -> np.ndarray:

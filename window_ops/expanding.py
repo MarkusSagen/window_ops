@@ -39,6 +39,10 @@ def expanding_max(x: np.ndarray) -> np.ndarray:
 def expanding_min(x: np.ndarray) -> np.ndarray:
     return _expanding_op(rolling_min, x)
 
+@njit
+def expanding_sum(x: np.ndarray) -> np.ndarray:
+    return _expanding_op(rolling_sum, x)
+
 # %% ../nbs/expanding.ipynb 17
 @njit
 def _seasonal_expanding_op(rolling_op: Callable, x: np.ndarray, season_length: int,
